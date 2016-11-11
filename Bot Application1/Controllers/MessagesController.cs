@@ -9,6 +9,7 @@ using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Bot_Application1
 {
@@ -25,15 +26,107 @@ namespace Bot_Application1
             {
                 ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
                 // calculate something for us to return
-                int length = (activity.Text ?? string.Empty).Length;
-                string  message = activity.Text;
-                Task<dynamic> re = MakeRequestToTASAPI(message);
-                dynamic res  =  await re;
+                // int length = (activity.Text ?? string.Empty).Length;
+
+
                 // return our reply to the user
                 //Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
-                Activity reply = activity.CreateReply($"{res.Score}");
 
-                await connector.Conversations.ReplyToActivityAsync(reply);
+                //await connector.Conversations.ReplyToActivityAsync(reply);
+		const string apiKey = "07db8c70ffb04568b68a46f511b014c6";
+		const string queryUri = "https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/sentiment";
+
+		var client = new HttpClient {
+			DefaultRequestHeaders = {
+				{"Ocp-Apim-Subscription-Key", apiKey},
+				{"Accept", "application/json"}
+			}
+		};
+		var sentimentInput = new BatchInput {
+            documents = new List<DocumentInput> {
+				new DocumentInput {
+					id = 1,
+					text = activity.Text,
+				}
+			}
+		};
+		var json = JsonConvert.SerializeObject(sentimentInput);
+		var sentimentPost = await client.PostAsync(queryUri, new StringContent(json, Encoding.UTF8, "application/json"));
+		var sentimentRawResponse = await sentimentPost.Content.ReadAsStringAsync();
+		var sentimentJsonResponse = JsonConvert.DeserializeObject<BatchResult>(sentimentRawResponse);
+		dynamic sentimentScore = sentimentJsonResponse?.documents?.FirstOrDefault()?.Score ?? 0;
+		
+		string message;
+		if (sentimentScore > 0.7)
+		{
+			message = $"That's great to hear!";
+		}
+		else if (sentimentScore < 0.3)
+		{
+			message = $"I'm sorry to hear that...";
+		}
+		else
+		{
+			message = $"I see...";
+		}
+		var reply = activity.CreateReply(message);
+		await connector.Conversations.ReplyToActivityAsync(reply);
+	}
+	else
+	{
+		//add code to handle errors, or non-messaging activities
+	}
+	var response = Request.CreateResponse(HttpStatusCode.OK);
+	return response;";
+                    const string queryUri = "https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/sentiment";
+
+                    var client = new HttpClient
+                    {
+                        DefaultRequestHeaders = {
+                {"Ocp-Apim-Subscription-Key", apiKey},
+                {"Accept", "application/json"}
+            }
+                    };
+                    var sentimentInput = new BatchInput
+                    {
+                        Documents = new List<DocumentInput> {
+                new DocumentInput {
+                    Id = 1,
+                    Text = activity.Text,
+                }
+            }
+                    };
+                    var json = JsonConvert.SerializeObject(sentimentInput);
+                    var sentimentPost = await client.PostAsync(queryUri, new StringContent(json, Encoding.UTF8, "application/json"));
+                    var sentimentRawResponse = await sentimentPost.Content.ReadAsStringAsync();
+                    var sentimentJsonResponse = JsonConvert.DeserializeObject<BatchResult>(sentimentRawResponse);
+                    var sentimentScore = sentimentJsonResponse?.Documents?.FirstOrDefault()?.Score ?? 0;
+
+                    string message;
+                    if (sentimentScore > 0.7)
+                    {
+                        message = $"That's great to hear!";
+                    }
+                    else if (sentimentScore < 0.3)
+                    {
+                        message = $"I'm sorry to hear that...";
+                    }
+                    else
+                    {
+                        message = $"I see...";
+                    }
+                    var reply = activity.CreateReply(message);
+                    await connector.Conversations.ReplyToActivityAsync(reply);
+                }
+                else
+                {
+                    //add code to handle errors, or non-messaging activities
+                }
+                var response = Request.CreateResponse(HttpStatusCode.OK);
+                return response;
+
+
+
             }
             else
             {
@@ -72,44 +165,7 @@ namespace Bot_Application1
             return null;
         }
 
-        async Task<dynamic> MakeRequestToTASAPI(string message)
-        {
-            try
-            {
-                string myComment = message.Replace(' ', '+');
-                HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "{3c8a96c7-6639-4739-ac98-da2e7203e93f}");
-                var uri = "https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/sentiment?" + myComment;
+        
+    
 
-                byte[] byteData = Encoding.UTF8.GetBytes("{body}");
-                HttpResponseMessage response;
-                using (var content = new ByteArrayContent(byteData))
-                {
-                    content.Headers.ContentType = new MediaTypeHeaderValue("< your content type, i.e. application/json >");
-                    response = await client.PostAsync(uri, content);
-                }
-                dynamic product = null;
-                if (response.IsSuccessStatusCode)
-                {
-                    var data = response.Content.ReadAsStringAsync().Result;
-                    product = JsonConvert.DeserializeObject(data);
-                    return product.Score;
-                }
-                else
-                {
-                    message = product.ReasonPhrase;
-                }
-            }
 
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
-            return message;
-        }
-
-            
-
-        }
-    }
