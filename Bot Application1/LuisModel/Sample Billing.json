@@ -1,0 +1,170 @@
+{
+  "luis_schema_version": "1.3.0",
+  "name": "Sample Billing",
+  "desc": "Sample Billing BOT",
+  "culture": "en-us",
+  "intents": [
+    {
+      "name": "crashing"
+    },
+    {
+      "name": "incorrect"
+    },
+    {
+      "name": "None"
+    }
+  ],
+  "entities": [
+    {
+      "name": "BDINIT"
+    },
+    {
+      "name": "BLPCHX"
+    },
+    {
+      "name": "BLPOPX"
+    },
+    {
+      "name": "CCINIT"
+    },
+    {
+      "name": "CHGCRE"
+    },
+    {
+      "name": "PCINIT"
+    },
+    {
+      "name": "RCRCPR"
+    }
+  ],
+  "composites": [
+    {
+      "name": "Bill Prep Flows",
+      "children": [
+        "BLPOPX",
+        "CHGCRE",
+        "BLPCHX",
+        "RCRCPR"
+      ]
+    },
+    {
+      "name": "EOD Flow",
+      "children": [
+        "BDINIT",
+        "PCINIT",
+        "CCINIT"
+      ]
+    }
+  ],
+  "bing_entities": [],
+  "actions": [],
+  "model_features": [
+    {
+      "name": "PROCESS",
+      "mode": true,
+      "words": "PCINIT,CHGCRE,TXAINV",
+      "activated": true
+    }
+  ],
+  "regex_features": [
+    {
+      "name": "table",
+      "pattern": "bl1 _ \\w+",
+      "activated": true
+    },
+    {
+      "name": "hid",
+      "pattern": "h.d",
+      "activated": true
+    }
+  ],
+  "utterances": [
+    {
+      "text": "chgcre is crashing",
+      "intent": "crashing",
+      "entities": [
+        {
+          "entity": "CHGCRE",
+          "startPos": 0,
+          "endPos": 0
+        }
+      ]
+    },
+    {
+      "text": "blpopx is crashing",
+      "intent": "crashing",
+      "entities": [
+        {
+          "entity": "BLPOPX",
+          "startPos": 0,
+          "endPos": 0
+        }
+      ]
+    },
+    {
+      "text": "charge effective date is not correct",
+      "intent": "incorrect",
+      "entities": []
+    },
+    {
+      "text": "pcinit is giving core dump",
+      "intent": "crashing",
+      "entities": [
+        {
+          "entity": "PCINIT",
+          "startPos": 0,
+          "endPos": 0
+        }
+      ]
+    },
+    {
+      "text": "chgcre is giving core dump",
+      "intent": "crashing",
+      "entities": [
+        {
+          "entity": "CHGCRE",
+          "startPos": 0,
+          "endPos": 0
+        }
+      ]
+    },
+    {
+      "text": "blpopx is giving core dump",
+      "intent": "crashing",
+      "entities": [
+        {
+          "entity": "BLPOPX",
+          "startPos": 0,
+          "endPos": 0
+        }
+      ]
+    },
+    {
+      "text": "chgcre is stuck",
+      "intent": "crashing",
+      "entities": [
+        {
+          "entity": "CHGCRE",
+          "startPos": 0,
+          "endPos": 0
+        }
+      ]
+    },
+    {
+      "text": "i hid on table",
+      "intent": "None",
+      "entities": []
+    },
+    {
+      "text": "pcinit is crashing",
+      "intent": "crashing",
+      "entities": [
+        {
+          "entity": "PCINIT",
+          "startPos": 0,
+          "endPos": 0
+        }
+      ]
+    }
+  ]
+}
